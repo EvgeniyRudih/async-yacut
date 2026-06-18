@@ -12,7 +12,8 @@ def index():
     form = URLMapForm()
     if form.validate_on_submit():
         custom_id = form.custom_id.data
-        if custom_id == 'files' or URLMap.query.filter_by(short=custom_id).first():
+        if (custom_id == 'files'
+                or URLMap.query.filter_by(short=custom_id).first()):
             flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('index.html', form=form)
         if not custom_id:
@@ -20,7 +21,8 @@ def index():
         url_map = URLMap(original=form.original_link.data, short=custom_id)
         db.session.add(url_map)
         db.session.commit()
-        short_link = url_for('redirect_view', short_id=custom_id, _external=True)
+        short_link = url_for('redirect_view',
+                             short_id=custom_id, _external=True)
         return render_template('index.html', form=form, short_link=short_link)
     return render_template('index.html', form=form)
 
