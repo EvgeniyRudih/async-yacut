@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY', 'supersecretkey')
     DISK_TOKEN = os.getenv('DISK_TOKEN')
+    YADISK_API_URL = 'https://cloud-api.yandex.net'

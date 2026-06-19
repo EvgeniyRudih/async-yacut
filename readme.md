@@ -3,11 +3,11 @@
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```
-git clone 
+git clone git@github.com:EvgeniyRudih/async-yacut.git
 ```
 
 ```
-cd yacut
+cd async-yacut
 ```
 
 Cоздать и активировать виртуальное окружение:
@@ -45,6 +45,7 @@ FLASK_APP=yacut
 FLASK_ENV=development
 SECRET_KEY=your_secret_key
 DB=sqlite:///db.sqlite3
+DISK_TOKEN=your_yandex_disk_token
 ```
 
 Создать базу данных и применить миграции:
@@ -58,3 +59,8 @@ flask db upgrade
 ```
 flask run
 ```
+
+## Автор
+ФИО: Рудых Евгений
+
+GitHub: [https://github.com/EvgeniyRudih](https://github.com/EvgeniyRudih)

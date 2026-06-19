@@ -2,69 +2,55 @@ import asyncio
 
 import aiohttp
 
-from yacut import app, db
-from yacut.models import URLMap
-from yacut.utils import get_unique_short_id
+from yacut import app
+from yacut.constants import (
+    YADISK_AUTH_HEADER,
+    YADISK_DOWNLOAD_URL,
+    YADISK_UPLOAD_PATH,
+    YADISK_UPLOAD_URL,
+)
 
-YADISK_API = 'https://cloud-api.yandex.net'
+
+def get_headers():
+    return {'Authorization':
+            YADISK_AUTH_HEADER.format(app.config['DISK_TOKEN'])}
 
 
 async def upload_file(session, file_name, file_data):
-    token = app.config['DISK_TOKEN']
-    headers = {'Authorization': f'OAuth {token}'}
+    file_path = YADISK_UPLOAD_PATH.format(file_name)
+    headers = get_headers()
 
-    # 1. Получаем ссылку для загрузки
     async with session.get(
-        f'{YADISK_API}/v1/disk/resources/upload',
+        f'{app.config["YADISK_API_URL"]}{YADISK_UPLOAD_URL}',
         headers=headers,
-        params={'path': f'/yacut/{file_name}', 'overwrite': 'true'}
+        params={'path': file_path, 'overwrite': 'true'},
     ) as resp:
-        data = await resp.json()
-        upload_href = data['href']
+        upload_href = (await resp.json())['href']
 
-    # 2. Загружаем файл
-    async with session.put(upload_href, data=file_data) as resp:
+    async with session.put(upload_href, data=file_data):
         pass
 
-    # 3. Получаем ссылку для скачивания
     async with session.get(
-        f'{YADISK_API}/v1/disk/resources/download',
+        f'{app.config["YADISK_API_URL"]}{YADISK_DOWNLOAD_URL}',
         headers=headers,
-        params={'path': f'/yacut/{file_name}'}
+        params={'path': file_path},
     ) as resp:
-        data = await resp.json()
-        download_href = data['href']
-
-    return file_name, download_href
+        return file_name, (await resp.json())['href']
 
 
 async def upload_all(files):
-    results = []
     async with aiohttp.ClientSession() as session:
-        tasks = []
-        for f in files:
-            file_data = f.read()
-            tasks.append(upload_file(session, f.filename, file_data))
-        results = await asyncio.gather(*tasks)
-    return results
+        tasks = [
+            upload_file(session, file.filename, file.read())
+            for file in files
+        ]
+        return await asyncio.gather(*tasks)
 
 
 def upload_files_to_disk(files):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        raw_results = loop.run_until_complete(upload_all(files))
+        return loop.run_until_complete(upload_all(files))
     finally:
         loop.close()
-
-    results = []
-    for file_name, download_url in raw_results:
-        short_id = get_unique_short_id()
-        url_map = URLMap(original=download_url, short=short_id)
-        db.session.add(url_map)
-        db.session.commit()
-        from flask import url_for
-        short_link = url_for('redirect_view',
-                             short_id=short_id, _external=True)
-        results.append({'name': file_name, 'short_link': short_link})
-    return results

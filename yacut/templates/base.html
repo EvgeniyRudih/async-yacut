@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YaCut</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
+    >
+  </head>
+  <body>
     <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">YaCut</a>
-            <a class="nav-link text-white" href="{{ url_for('files') }}">Загрузка файлов</a>
-        </div>
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">YaCut</a>
+        <a class="nav-link text-white" href="{{ url_for('files') }}">
+          Загрузка файлов
+        </a>
+      </div>
     </nav>
     <div class="container mt-4">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-warning">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-warning">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
     </div>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-</body>
+    <script
+      src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"
+    ></script>
+  </body>
 </html>

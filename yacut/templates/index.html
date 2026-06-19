@@ -20,9 +20,9 @@
     {{ form.submit(class="btn btn-primary") }}
 </form>
 {% if short_link %}
-<div class="mt-4">
-    <p>Ваша короткая ссылка:</p>
-    <a href="{{ short_link }}">{{ short_link }}</a>
-</div>
+    <div class="mt-4">
+        <p>Ваша короткая ссылка:</p>
+        <a href="{{ short_link }}">{{ short_link }}</a>
+    </div>
 {% endif %}
 {% endblock %}
