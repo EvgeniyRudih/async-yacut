@@ -21,7 +21,7 @@
     <div class="container mt-4">
       {% with messages = get_flashed_messages() %}
         {% for message in messages %}
-        <div class="alert alert-warning">{{ message }}</div>
+          <div class="alert alert-warning">{{ message }}</div>
         {% endfor %}
       {% endwith %}
       {% block content %}{% endblock %}

@@ -21,12 +21,16 @@ INVALID_SHORT_MESSAGE = 'Указано недопустимое имя для �
 DUPLICATE_SHORT_WARNING = (
     'Предложенный вариант короткой ссылки уже существует.'
 )
-SHORT_GENERATION_ERROR_MESSAGE = 'Не удалось сгенерировать короткую ссылку'
-ORIGINAL_TOO_LONG_MESSAGE = 'Слишком длинная ссылка'
-
-
-class ShortGenerationError(Exception):
-    pass
+SHORT_GENERATION_ERROR_MESSAGE = (
+    'Не удалось сгенерировать короткую ссылку за {} попыток'.format(
+        SHORT_GENERATION_ATTEMPTS
+    )
+)
+ORIGINAL_TOO_LONG_MESSAGE = (
+    'Длина исходной ссылки не должна превышать {} символов'.format(
+        ORIGINAL_MAX_LENGTH
+    )
+)
 
 
 class URLMap(db.Model):
@@ -34,6 +38,9 @@ class URLMap(db.Model):
     original = db.Column(db.String(ORIGINAL_MAX_LENGTH), nullable=False)
     short = db.Column(db.String(SHORT_MAX_LENGTH), unique=True, nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    class ShortGenerationError(Exception):
+        pass
 
     @staticmethod
     def create(
@@ -81,9 +88,9 @@ class URLMap(db.Model):
             short = ''.join(
                 random.choices(SHORT_ALLOWED_CHARS, k=SHORT_LENGTH)
             )
-            if short != FILES_SHORT and not URLMap.get(short):
+            if not URLMap.short_exists(short):
                 return short
-        raise ShortGenerationError(SHORT_GENERATION_ERROR_MESSAGE)
+        raise URLMap.ShortGenerationError(SHORT_GENERATION_ERROR_MESSAGE)
 
     def get_short_link(self):
         return url_for(REDIRECT_VIEW, short=self.short, _external=True)

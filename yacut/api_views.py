@@ -31,7 +31,7 @@ def create_short_link():
                 ).get_short_link(),
             }
         ), HTTPStatus.CREATED
-    except ValueError as error:
+    except (ValueError, URLMap.ShortGenerationError) as error:
         raise InvalidAPIUsage(str(error))
 
 
