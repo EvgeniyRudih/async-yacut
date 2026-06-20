@@ -3,24 +3,13 @@ from http import HTTPStatus
 from flask import jsonify, request
 
 from yacut import app
-from yacut.constants import (
-    EMPTY_REQUEST_BODY_MESSAGE,
-    REQUIRED_FIELD_MESSAGE,
-    SHORT_NOT_FOUND_MESSAGE,
-)
+from yacut.error_handlers import InvalidAPIUsage
 from yacut.models import URLMap
 
 
-class InvalidAPIUsage(Exception):
-    def __init__(self, message, status_code=HTTPStatus.BAD_REQUEST):
-        super().__init__()
-        self.message = message
-        self.status_code = status_code
-
-
-@app.errorhandler(InvalidAPIUsage)
-def invalid_api_usage(error):
-    return jsonify({'message': error.message}), error.status_code
+EMPTY_REQUEST_BODY_MESSAGE = 'Отсутствует тело запроса'
+REQUIRED_FIELD_MESSAGE = '"url" является обязательным полем!'
+SHORT_NOT_FOUND_MESSAGE = 'Указанный id не найден'
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -33,19 +22,17 @@ def create_short_link():
         raise InvalidAPIUsage(REQUIRED_FIELD_MESSAGE)
 
     try:
-        url_map = URLMap.create(
-            original=data['url'],
-            short=data.get('custom_id'),
-        )
+        return jsonify(
+            {
+                'url': data['url'],
+                'short_link': URLMap.create(
+                    original=data['url'],
+                    short=data.get('custom_id'),
+                ).get_short_link(),
+            }
+        ), HTTPStatus.CREATED
     except ValueError as error:
         raise InvalidAPIUsage(str(error))
-
-    return jsonify(
-        {
-            'url': url_map.original,
-            'short_link': url_map.get_short_link(),
-        }
-    ), HTTPStatus.CREATED
 
 
 @app.route('/api/id/<string:short>/', methods=['GET'])

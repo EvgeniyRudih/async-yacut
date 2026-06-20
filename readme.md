@@ -4,9 +4,7 @@
 
 ```
 git clone git@github.com:EvgeniyRudih/async-yacut.git
-```
 
-```
 cd async-yacut
 ```
 
