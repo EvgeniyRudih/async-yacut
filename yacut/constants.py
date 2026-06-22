@@ -11,3 +11,4 @@ SHORT_PATTERN = rf'^[{re.escape(SHORT_ALLOWED_CHARS)}]+$'
 
 FILES_SHORT = 'files'
 REDIRECT_VIEW = 'redirect_view'
+RESERVED_SHORTS = {FILES_SHORT}

@@ -40,22 +40,21 @@ def files():
         flash(str(error))
         return render_template('files.html', form=form)
 
+    files_count = len(form.files.data)
+
     try:
-        results = []
-        files_count = len(form.files.data)
-        for index, (file, download_url) in enumerate(
-            zip(form.files.data, download_urls),
-            start=1,
-        ):
-            results.append(
-                {
-                    'name': file.filename,
-                    'short_link': URLMap.create(
-                        download_url,
-                        commit=index == files_count,
-                    ).get_short_link(),
-                }
+        results = [
+            dict(
+                name=file.filename,
+                short_link=URLMap.create(
+                    download_url,
+                    commit=index == files_count - 1,
+                ).get_short_link(),
             )
+            for index, (file, download_url) in enumerate(
+                zip(form.files.data, download_urls)
+            )
+        ]
     except (ValueError, URLMap.ShortGenerationError) as error:
         flash(str(error))
         return render_template('files.html', form=form)

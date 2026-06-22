@@ -1,24 +1,25 @@
 import asyncio
-import os
 
 import aiohttp
 
+from yacut.settings import Config
 
-YADISK_API_URL = 'https://cloud-api.yandex.net'
-YADISK_UPLOAD_PATH = '/yacut/{}'
+
+YADISK_UPLOAD_URL = '/v1/disk/resources/upload'
+YADISK_DOWNLOAD_URL = '/v1/disk/resources/download'
 YADISK_HEADERS = {
-    'Authorization': f'OAuth {os.getenv("DISK_TOKEN")}',
+    'Authorization': f'OAuth {Config.DISK_TOKEN}',
 }
 YADISK_UPLOAD_PARAMS = {'overwrite': 'true'}
 
 
 async def upload_file(session, file_name, file_data):
     async with session.get(
-        f'{YADISK_API_URL}/v1/disk/resources/upload',
+        f'{Config.YADISK_API_URL}{YADISK_UPLOAD_URL}',
         headers=YADISK_HEADERS,
         params={
             **YADISK_UPLOAD_PARAMS,
-            'path': YADISK_UPLOAD_PATH.format(file_name),
+            'path': Config.YADISK_UPLOAD_PATH.format(file_name),
         },
     ) as response:
         upload_url = (await response.json())['href']
@@ -27,9 +28,9 @@ async def upload_file(session, file_name, file_data):
         pass
 
     async with session.get(
-        f'{YADISK_API_URL}/v1/disk/resources/download',
+        f'{Config.YADISK_API_URL}{YADISK_DOWNLOAD_URL}',
         headers=YADISK_HEADERS,
-        params={'path': YADISK_UPLOAD_PATH.format(file_name)},
+        params={'path': Config.YADISK_UPLOAD_PATH.format(file_name)},
     ) as response:
         return (await response.json())['href']
 

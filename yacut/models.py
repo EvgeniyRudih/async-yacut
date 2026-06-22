@@ -6,9 +6,9 @@ from flask import url_for
 
 from yacut import db
 from yacut.constants import (
-    FILES_SHORT,
     ORIGINAL_MAX_LENGTH,
     REDIRECT_VIEW,
+    RESERVED_SHORTS,
     SHORT_ALLOWED_CHARS,
     SHORT_GENERATION_ATTEMPTS,
     SHORT_LENGTH,
@@ -22,14 +22,12 @@ DUPLICATE_SHORT_WARNING = (
     'Предложенный вариант короткой ссылки уже существует.'
 )
 SHORT_GENERATION_ERROR_MESSAGE = (
-    'Не удалось сгенерировать короткую ссылку за {} попыток'.format(
-        SHORT_GENERATION_ATTEMPTS
-    )
+    f'Не удалось сгенерировать короткую ссылку. '
+    f'Количество попыток: {SHORT_GENERATION_ATTEMPTS}.'
 )
-ORIGINAL_TOO_LONG_MESSAGE = (
-    'Длина исходной ссылки не должна превышать {} символов'.format(
-        ORIGINAL_MAX_LENGTH
-    )
+ORIGINAL_TOO_LONG_MESSAGE = ORIGINAL_TOO_LONG_MESSAGE = (
+    f'Максимальная длина исходной ссылки — '
+    f'Количество символов: {ORIGINAL_MAX_LENGTH}.'
 )
 
 
@@ -80,7 +78,7 @@ class URLMap(db.Model):
 
     @staticmethod
     def short_exists(short):
-        return short == FILES_SHORT or URLMap.get(short)
+        return short in RESERVED_SHORTS or URLMap.get(short)
 
     @staticmethod
     def get_unique_short():
